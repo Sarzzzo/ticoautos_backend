@@ -19,23 +19,17 @@ module.exports = function (req, res, next) {
 
     // 3. Verify the token
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const secret = process.env.JWT_SECRET || 'changeme123';
+        const decoded = jwt.verify(token, secret);
 
-        // if the token is valid, we add the user to the request(id and role)
-        // in the petition (req.user)
-        //in this way, the controller can access the user id and role, and who is the user
+        // if the token is valid, attach the user payload to req
         req.user = decoded.user;
 
-        // all in order, lets go to the next middleware or controller
-        next(); // right here
-        //====================================================================================
-
+        // forward the request
+        next();
     } catch (error) {
-        console.error("Error verifying token:", error);
-        return res.status(500).json({
-            message:
-                "Internal server error"
-        });
+        console.error('Error verifying token:', error);
+        return res.status(401).json({ message: 'Token is invalid or expired' });
     }
 }
 

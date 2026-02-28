@@ -10,20 +10,21 @@ const jwt = require("jsonwebtoken");
 // BUSINESS LOGIC TO REGISTER A NEW USER
 exports.register = async (req, res) => {
     try {
-        const { username, email, password } = req.body;
+        const { username, email, password, role } = req.body; // role may come from client, optional
+
+        // basic validation
+        if (!username || !email || !password) {
+            return res.status(400).json({ message: 'Username, email and password are required' });
+        }
 
         // 1. Check if the user already exists
         const existingUser = await User.findOne({ $or: [{ email }, { username }] });
         if (existingUser) {
-            return res.status(400).json({
-                message:
-                    "User already exists"
-            });
+            return res.status(400).json({ message: 'User already exists' });
         }
 
-        // 2. Hash the password, the 10 is the "salt", or the number of times the password is 
-        // hashed
-        const salt = await bycryptjs.hash(password, 10);
+        // 2. Hash the password correctly
+        const salt = await bycryptjs.genSalt(10); // generate a proper salt
         const passwordHash = await bycryptjs.hash(password, salt);
 
         // 3. Create the user
@@ -31,25 +32,18 @@ exports.register = async (req, res) => {
             username,
             email,
             passwordHash,
-            role: role || "buyer" // if role is not defined, it will be "buyer"
+            role: role || 'buyer' // default to buyer if none provided
         });
 
-        // 4. And.. Save the user
+        // 4. Save the user
         await newUser.save();
 
         // Results, if everything goes well
-        return res.status(201).json({
-            message:
-                "User created successfully"
-        });
-
+        return res.status(201).json({ message: 'User created successfully' });
     } catch (error) {
         // Results, if something goes wrong
-        console.error("Error creating user:", error);
-        return res.status(500).json({
-            message:
-                "Internal server error"
-        });
+        console.error('Error creating user:', error);
+        return res.status(500).json({ message: 'Internal server error' });
     }
 };
 
@@ -59,50 +53,41 @@ exports.login = async (req, res) => {
     try {
         const { username, email, password } = req.body;
 
-        // 1. Check if the user exists, by his username
-        const user = await User.findOne({ username });
-        if (!user) {
-            return res.status(401).json({
-                message:
-                    "Credentials not valid"
-            });
+        if ((!username && !email) || !password) {
+            return res.status(400).json({ message: 'Username/email and password are required' });
         }
-        // 2. Check if the password is encrypted in DB
+
+        // 1. Check if the user exists, trying both username and email
+        const user = await User.findOne({ $or: [{ username }, { email }] });
+        if (!user) {
+            return res.status(401).json({ message: 'Credentials not valid' });
+        }
+
+        // 2. Check password
         const isMatch = await bycryptjs.compare(password, user.passwordHash);
         if (!isMatch) {
-            return res.status(401).json({
-                message:
-                    "Credentials not valid"
-            });
+            return res.status(401).json({ message: 'Credentials not valid' });
         }
-        // 3. Generate a token, if everything goes well
+
+        // 3. Generate a token
         const payload = {
             user: {
                 id: user._id,
-                role: user.role
-                // only with 2 attributes, the id and the role
+                role: user.role,
             }
         };
 
-        // sign the token, with the secret key and the expiration time
-        jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "10h" },
-            // before that 10h is the expiration time, and the secret key is the process.env.JWT_SECRET
-            // the payload is the user id and role
-
-            // so..
-            (err, token) => {
-                if (err) throw err;
-                // let's send the token to the client, in the frontend
-                res.json({ token, role: user.role });
+        const secret = process.env.JWT_SECRET || 'changeme123';
+        jwt.sign(payload, secret, { expiresIn: '10h' }, (err, token) => {
+            if (err) {
+                console.error('JWT sign error:', err);
+                return res.status(500).json({ message: 'Error generating token' });
             }
-        );
-    } catch (error) {
-        console.error("Error logging in:", error);
-        return res.status(500).json({
-            message:
-                "Internal server error"
+            res.json({ token, role: user.role });
         });
+    } catch (error) {
+        console.error('Error logging in:', error);
+        return res.status(500).json({ message: 'Internal server error' });
     }
 };
-
 
