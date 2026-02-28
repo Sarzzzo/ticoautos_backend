@@ -1,16 +1,15 @@
 require("dotenv").config();
-const cors = require("cors");
-
 const express = require("express");
-
-//import the connection to the database
-const connectDB = require('./src/config/db');
+const mongoose = require("mongoose");
+const cors = require("cors");
 
 const app = express();
 
 // CORS configuration
-// This allows the frontend to make requests to the backend
-app.use(cors());
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+}));
 
 // Middleware: the server can understand JSON format, from frontend to backend
 app.use(express.json());
@@ -19,8 +18,19 @@ app.use(express.json());
 app.use("/api/auth", require("./src/routes/authRoutes"));
 app.use("/api/vehicles", require("./src/routes/vehicleRoutes"));
 
-// And, lets connect to the database
-connectDB();
+// Conexión Mongo
+const mongoString = process.env.DATABASE_URL;
+
+mongoose.connect(mongoString);
+const database = mongoose.connection;
+
+database.on('error', (error) => {
+    console.log('Error MongoDB:', error);
+});
+
+database.once('connected', () => {
+    console.log('Database Connected');
+});
 
 // this is a prueba route, so lets check if the server is working
 app.get('/', (req, res) => { res.send('API Running') });
