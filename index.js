@@ -1,4 +1,5 @@
 require("dotenv").config();
+const cors = require("cors");
 
 const express = require("express");
 
@@ -7,12 +8,16 @@ const connectDB = require('./src/config/db');
 
 const app = express();
 
+// CORS configuration
+// This allows the frontend to make requests to the backend
+app.use(cors());
+
 // Middleware: the server can understand JSON format, from frontend to backend
 app.use(express.json());
 
 // Routes of the application
 app.use("/api/auth", require("./src/routes/authRoutes"));
-app.use("/api/vehicles", require("./src/routes/vehicleRoutes"));
+app.use("/api/vehicles", require("./src/routes/vehicleRoutes.js"));
 
 // And, lets connect to the database
 connectDB();
