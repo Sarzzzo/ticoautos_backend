@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const path = require("path");
 
 const app = express();
 
@@ -32,8 +33,17 @@ database.once('connected', () => {
     console.log('Database Connected');
 });
 
-// this is a prueba route, so lets check if the server is working
-app.get('/', (req, res) => { res.send('API Running') });
+// this is the route to serve the frontend files
+// 1. we tell to express where is the public folder
+app.use(express.static(path.join(__dirname, '../frontend/public')));
+
+// 2. we tell to express that if the request is not for an API route, it should serve the index.html file
+app.use('/src', express.static(path.join(__dirname, '../frontend/src')));
+
+// 3. when someone tries to access the root route, it should serve the index.html file
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/public/index.html'));
+});
 
 // the port, if the environment variable PORT is not defined, it will use 3000
 const PORT = process.env.PORT || 3000; // this way is more secure 
