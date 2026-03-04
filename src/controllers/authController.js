@@ -6,6 +6,8 @@ const bycryptjs = require("bcryptjs");
 // the json web token library, or the 'jwt' library
 const jwt = require("jsonwebtoken");
 
+const envExport = require("dotenv").config();
+
 // ====================================================================================
 // BUSINESS LOGIC TO REGISTER A NEW USER
 exports.register = async (req, res) => {
@@ -77,8 +79,8 @@ exports.login = async (req, res) => {
             }
         };
 
-        const secret = process.env.JWT_SECRET || 'changeme123';
-        jwt.sign(payload, secret, { expiresIn: '10h' }, (err, token) => {
+        const JWT_SECRET = envExport.JWT_SECRET;
+        jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' }, (err, token) => {
             if (err) {
                 console.error('JWT sign error:', err);
                 return res.status(500).json({ message: 'Error generating token' });

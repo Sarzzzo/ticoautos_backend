@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const vehicleController = require('../controllers/vehicleController');
-const authMiddleware = require('../middleware/authMiddleware');
+const { authenticateToken } = require('../middleware/authMiddleware');
 
 // ROUTES ===========================================================
 // POST /api/vehicles
 // Private Access
-router.post('/', authMiddleware, vehicleController.createVehicle); // public one vehicle
+router.post('/', authenticateToken, vehicleController.createVehicle); // public one vehicle
 // ===================================================================
 // GET /api/vehicles
 // Public Access
