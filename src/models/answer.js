@@ -11,7 +11,7 @@ const answerSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
-    }, // debe ser el propietario del vehículo
+    }, // must be the owner of the vehicle
     content: { type: String, required: true },
     createdAt: { type: Date, default: Date.now },
   },
