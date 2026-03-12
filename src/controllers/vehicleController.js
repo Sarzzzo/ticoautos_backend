@@ -43,7 +43,7 @@ exports.getVehicles = async (req, res) => {
 
         if (status) query.status = status;
 
-        // Filtro de rango de precios
+        // Price range filter
         if (minPrice || maxPrice) {
             query.price = {};
             if (minPrice) query.price.$gte = Number(minPrice); // $gte means greater than or equal to
