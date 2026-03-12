@@ -19,7 +19,7 @@ app.use(express.json());
 app.use("/api/auth", require("./src/routes/authRoutes"));
 app.use("/api/vehicles", require("./src/routes/vehicleRoutes"));
 
-// Conexión Mongo
+// Mongo Connection
 const mongoString = process.env.DATABASE_URL;
 
 mongoose.connect(mongoString);
