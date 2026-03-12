@@ -79,16 +79,16 @@ exports.login = async (req, res) => {
             }
         };
 
-        // 3. Generar el Token JWT
+        // 3. Generate the JWT Token
         const secretKey = process.env.JWT_SECRET;
         const tokenConfig = { expiresIn: '10h' };
 
-        // Creamos el token sincrónicamente
-        const tokenGenerado = jwt.sign(payload, secretKey, tokenConfig);
+        // We create the token synchronously
+        const generatedToken = jwt.sign(payload, secretKey, tokenConfig);
 
-        // Devolvemos la respuesta
+        // We return the response
         return res.status(200).json({
-            token: tokenGenerado,
+            token: generatedToken,
             role: user.role
         });
     } catch (error) {
