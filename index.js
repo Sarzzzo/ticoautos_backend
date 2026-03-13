@@ -18,6 +18,7 @@ app.use(express.json());
 // Routes of the application
 app.use("/api/auth", require("./src/routes/authRoutes"));
 app.use("/api/vehicles", require("./src/routes/vehicleRoutes"));
+app.use("/api/qa", require("./src/routes/qaRoutes"));
 
 // Mongo Connection
 const mongoString = process.env.DATABASE_URL;
