@@ -73,3 +73,33 @@ exports.getVehicles = async (req, res) => {
         res.status(500).json({ error: 'Error al obtener los vehículos.' });
     }
 };
+
+// BUSINESS LOGIC TO GET A SINGLE VEHICLE BY ID
+exports.getVehicleById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        // We use populate to bring the owner's info and the associated questions and answers
+        const vehicle = await Vehicle.findById(id)
+            .populate('ownerId', 'username email') // Only bring username and email to protect privacy
+            .populate({
+                path: 'questions',
+                populate: [
+                    { path: 'authorId', select: 'username' }, // Who asked
+                    { 
+                        path: 'answerId',
+                        populate: { path: 'authorId', select: 'username' } // Who answered (usually the owner)
+                    }
+                ]
+            });
+            
+        if (!vehicle) {
+            return res.status(404).json({ message: 'Vehículo no encontrado' });
+        }
+        
+        res.json(vehicle);
+    } catch (error) {
+        console.error('Error fetching vehicle details:', error);
+        res.status(500).json({ error: 'Error al obtener los detalles del vehículo.' });
+    }
+};

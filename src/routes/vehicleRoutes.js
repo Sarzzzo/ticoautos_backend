@@ -11,6 +11,10 @@ router.post('/', authenticateToken, vehicleController.createVehicle); // public 
 // GET /api/vehicles
 // Public Access
 router.get('/', vehicleController.getVehicles); // public all vehicles  
+
+// GET /api/vehicles/:id
+// Public Access (Detail view)
+router.get('/:id', vehicleController.getVehicleById); 
 // ===================================================================
 
 module.exports = router;
