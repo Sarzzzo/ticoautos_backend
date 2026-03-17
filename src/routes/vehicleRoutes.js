@@ -39,4 +39,7 @@ router.get('/:id', vehicleController.getVehicleById);
 // PRIVATE: Create a new vehicle (with optional image upload)
 router.post('/', authenticateToken, upload.single('image'), vehicleController.createVehicle);
 
+// PRIVATE: Mark vehicle as sold (owner only)
+router.put('/:id/sold', authenticateToken, vehicleController.markAsSold);
+
 module.exports = router;
