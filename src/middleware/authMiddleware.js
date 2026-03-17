@@ -1,6 +1,5 @@
-// this middleware is used to protect routes, so only authenticated users can access them
+// Middleware to protect routes - only authenticated users can access them
 const jwt = require("jsonwebtoken");
-const envExport = require("dotenv").config();
 
 const authenticateToken = async function (req, res, next) {
   const authHeader = req.headers['authorization'];
@@ -11,18 +10,19 @@ const authenticateToken = async function (req, res, next) {
   }
 
   try {
-    const JWT_SECRET = process.env.JWT_SECRET;
+    // Use process.env directly - dotenv is already loaded in index.js
+    const secret = process.env.JWT_SECRET;
 
-    // We verify the token using the secret key. If it's valid, we get the decoded payload back.
-    const decoded = jwt.verify(token, JWT_SECRET);
+    if (!secret) {
+      console.error('CRITICAL: JWT_SECRET is not defined in environment variables');
+      return res.status(500).json({ message: 'Server configuration error' });
+    }
 
-    // info decoded is now available in req.user for the next middleware or route handler
+    const decoded = jwt.verify(token, secret);
     req.user = decoded.user;
-
-    // the user is authenticated, we can proceed to the next middleware or route handler
     next();
   } catch (error) {
-    console.error(error);
+    console.error('Token verification failed:', error.message);
     return res.status(401).json({ message: 'Invalid or expired token' });
   }
 };
