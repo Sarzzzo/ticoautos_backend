@@ -11,7 +11,7 @@ const authenticateToken = async function (req, res, next) {
   }
 
   try {
-    const JWT_SECRET = envExport.JWT_SECRET;
+    const JWT_SECRET = process.env.JWT_SECRET;
 
     // We verify the token using the secret key. If it's valid, we get the decoded payload back.
     const decoded = jwt.verify(token, JWT_SECRET);
