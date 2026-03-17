@@ -38,6 +38,9 @@ database.once('connected', () => {
 // 1. we tell to express where is the public folder
 app.use(express.static(path.join(__dirname, '../frontend/public')));
 
+// Serve uploaded images
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // 2. we tell to express that if the request is not for an API route, it should serve the index.html file
 app.use('/src', express.static(path.join(__dirname, '../frontend/src')));
 
