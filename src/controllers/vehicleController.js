@@ -14,7 +14,6 @@ exports.createVehicle = async (req, res) => {
             description
         };
 
-        // If an image was uploaded, store the path
         if (req.file) {
             vehicleData.image = '/uploads/' + req.file.filename;
         }
@@ -29,16 +28,35 @@ exports.createVehicle = async (req, res) => {
     }
 };
 
-// GET ALL VEHICLES (Public, with filters and pagination)
+// GET ALL VEHICLES (Public, with ALL filters and pagination)
+// Supports: brand, model, minYear, maxYear, minPrice, maxPrice, status, search (general)
 exports.getVehicles = async (req, res) => {
     try {
-        const { brand, minPrice, maxPrice, status, page = 1, limit = 10 } = req.query;
+        const { brand, model, minYear, maxYear, minPrice, maxPrice, status, search, page = 1, limit = 10 } = req.query;
 
         let query = {};
 
+        // General search (searches brand and model)
+        if (search) {
+            query.$or = [
+                { brand: new RegExp(search, 'i') },
+                { model: new RegExp(search, 'i') }
+            ];
+        }
+
+        // Specific filters (override general search if provided)
         if (brand) query.brand = new RegExp(brand, 'i');
+        if (model) query.model = new RegExp(model, 'i');
         if (status) query.status = status;
 
+        // Year range
+        if (minYear || maxYear) {
+            query.year = {};
+            if (minYear) query.year.$gte = Number(minYear);
+            if (maxYear) query.year.$lte = Number(maxYear);
+        }
+
+        // Price range
         if (minPrice || maxPrice) {
             query.price = {};
             if (minPrice) query.price.$gte = Number(minPrice);
@@ -93,5 +111,35 @@ exports.getVehicleById = async (req, res) => {
     } catch (error) {
         console.error('Error fetching vehicle details:', error);
         res.status(500).json({ error: 'Error al obtener los detalles del vehiculo.' });
+    }
+};
+
+// MARK VEHICLE AS SOLD (only the owner can do this)
+exports.markAsSold = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user.id;
+
+        const vehicle = await Vehicle.findById(id);
+        if (!vehicle) {
+            return res.status(404).json({ message: 'Vehiculo no encontrado' });
+        }
+
+        // Verify ownership
+        if (vehicle.ownerId.toString() !== userId) {
+            return res.status(403).json({ message: 'Solo el dueno del vehiculo puede marcarlo como vendido' });
+        }
+
+        if (vehicle.status === 'sold') {
+            return res.status(400).json({ message: 'Este vehiculo ya esta marcado como vendido' });
+        }
+
+        vehicle.status = 'sold';
+        await vehicle.save();
+
+        res.json({ message: 'Vehiculo marcado como vendido', vehicle });
+    } catch (error) {
+        console.error('Error marking vehicle as sold:', error);
+        res.status(500).json({ error: 'Error al actualizar el estado del vehiculo.' });
     }
 };
