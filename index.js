@@ -44,6 +44,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // 2. we tell to express that if the request is not for an API route, it should serve the index.html file
 app.use('/src', express.static(path.join(__dirname, '../frontend/src')));
+app.use('/img', express.static(path.join(__dirname, '../frontend/img')));
 
 // 3. when someone tries to access the root route, it should serve the index.html file
 app.get('/', (req, res) => {
