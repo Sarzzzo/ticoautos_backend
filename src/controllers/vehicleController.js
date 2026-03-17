@@ -1,6 +1,7 @@
 const Vehicle = require('../models/vehicle');
 
-// CREATE VEHICLE (with optional image)
+// CREATE VEHICLE (con imagen opcional)
+// El precio debe estar en colones costarricenses (CRC)
 exports.createVehicle = async (req, res) => {
     try {
         const { brand, model, year, price, description } = req.body;

@@ -10,6 +10,7 @@ const vehicleSchema = new mongoose.Schema(
     brand: { type: String, required: true },
     model: { type: String, required: true },
     year: { type: Number, required: true },
+    // El precio se almacena en colones costarricenses (CRC)
     price: { type: Number, required: true },
     status: { type: String, enum: ["available", "sold"], default: "available" },
     description: { type: String },
