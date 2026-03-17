@@ -19,6 +19,7 @@ app.use(express.json());
 app.use("/api/auth", require("./src/routes/authRoutes"));
 app.use("/api/vehicles", require("./src/routes/vehicleRoutes"));
 app.use("/api/qa", require("./src/routes/qaRoutes"));
+app.use("/api/chat", require("./src/routes/chatRoutes"));
 
 // Mongo Connection
 const mongoString = process.env.DATABASE_URL;
