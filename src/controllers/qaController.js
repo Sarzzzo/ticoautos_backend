@@ -21,6 +21,12 @@ exports.createQuestion = async (req, res) => {
             return res.status(400).json({ message: 'No puedes hacer preguntas en tu propio anuncio' });
         }
 
+        // Enforce 1 question per user per vehicle
+        const existingQuestion = await Question.findOne({ vehicleId, authorId });
+        if (existingQuestion) {
+            return res.status(400).json({ message: 'Ya hiciste una pregunta sobre este vehiculo. Solo se permite una pregunta por usuario.' });
+        }
+
         // Create the new question
         const newQuestion = new Question({
             vehicleId,
