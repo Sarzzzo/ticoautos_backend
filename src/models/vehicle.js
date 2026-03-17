@@ -13,6 +13,7 @@ const vehicleSchema = new mongoose.Schema(
     price: { type: Number, required: true },
     status: { type: String, enum: ["available", "sold"], default: "available" },
     description: { type: String },
+    image: { type: String, default: '' },
     questions: [{ type: mongoose.Schema.Types.ObjectId, ref: "Question" }],
   },
   { timestamps: true },
